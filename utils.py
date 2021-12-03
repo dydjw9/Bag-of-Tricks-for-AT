@@ -3,6 +3,7 @@ from collections import namedtuple
 import torch
 from torch import nn
 import torchvision
+import torch.distributed as dist
 from torch.optim.optimizer import Optimizer, required
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -17,6 +18,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 cifar10_mean = (0.4914, 0.4822, 0.4465) # equals np.mean(train_set.train_data, axis=(0,1,2))/255
 cifar10_std = (0.2471, 0.2435, 0.2616) # equals np.std(train_set.train_data, axis=(0,1,2))/255
+
+def get_world_size():
+    if not dist.is_available():
+        return 1
+    if not dist.is_initialized():
+        return 1
+    return dist.get_world_size()
 
 def pad(x, border=4):
     return np.pad(x, [(0, 0), (border, border), (border, border), (0, 0)], mode='reflect')
